@@ -13,4 +13,15 @@ export function rndTrinary (o1, o2, o3) {
         return o3
     }
 }
+export function rndTrinaryEq (o1, o2, o3) {
+    const rnd = Math.random();
+
+    if (rnd < 0.333) {
+        return o1;
+    } else if (rnd < 0.666) {
+        return o2;
+    } else {
+        return o3
+    }
+}
 

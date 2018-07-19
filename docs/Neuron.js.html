@@ -1,22 +1,32 @@
-import {rndBool, rndTrinary, rndTrinaryEq} from "./evoHelpers";
-import {Enum} from 'enumify';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Neuron.js</title>
 
-//TODO: Create Brain to contain and manage neurons.
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
 
-/** The possible types for a neuron.
- * Here, Input and Output are dominant over Normal,
- * and breed accordingly.
- * @typedef {{INPUT, OUTPUT, NORMAL}} Types
- */
+<body>
 
-export class Types extends Enum {
-}
+<div id="main">
 
-Types.initEnum(['INPUT', 'NORMAL', 'OUTPUT']);
+    <h1 class="page-title">Source: Neuron.js</h1>
 
-export function randomType(){
-    return rndTrinary(Types.NORMAL, Types.NORMAL, rndBool() ? Types.INPUT : Types.OUTPUT);
-}
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {rndBool, rndTrinary} from "./evoHelpers";
 
 class Neuron {
     /**
@@ -25,7 +35,7 @@ class Neuron {
      * @typedef {{
      *      offset:number,
      *      charge:number
-     *  }} Trigger
+     *  }} Triggerr
      */
 
     /**
@@ -53,10 +63,9 @@ class Neuron {
      * @param {number} threshold
      * @param {number} stability
      * @param {number} filter
-     * @param {string} type
      * @param {Connection[]} connections
      */
-    constructor({threshold, stability, filter, type = Types.NORMAL, connections = []}) {
+    constructor({threshold, stability, filter, connections = []}) {
 
         /**
          * A record of all incoming charges, and the phase they came in.
@@ -79,13 +88,6 @@ class Neuron {
          * @type {number}
          */
         this.stability = stability;
-
-        /**
-         * The type of neuron, input, output, or normal.
-         * This influences breeding.
-         * @type {string}
-         */
-        this.type = type;
 
         /**
          * Connections for this neuron.
@@ -126,7 +128,7 @@ class Neuron {
         const summedCharge = this.sumBuffer();
         if (summedCharge > this.threshold) {
             this.connections.forEach(connection => {
-                if (Math.random() < connection.probability) {
+                if (Math.random() &lt; connection.probability) {
                     triggers.push({
                         offset: connection.offset,
                         charge: summedCharge * this.filter * connection.filter
@@ -150,7 +152,7 @@ class Neuron {
          */
         for (let i = this.buffer.length - 1; i >= 0; i--) {
             /**Find last occurance that is too old.*/
-            if (this.buffer[i].phase < phase - this.stability) {
+            if (this.buffer[i].phase &lt; phase - this.stability) {
                 /**Set buffer = to only what is after this item.*/
                 this.buffer = this.buffer.slice(i + 1, this.buffer.length - 1);
                 break;
@@ -181,41 +183,33 @@ class Neuron {
             threshold: rndTrinary(a.threshold, b.threshold, Math.random()),
             stability: rndTrinary(a.stability, b.stability, Math.random()),
             filter: rndTrinary(a.filter, b.filter, Math.random()),
-            type: undefined,
             connections: []
-        }
-
-        if (a.hasDominantType() == b.hasDominantType()) {
-            c.type = rndTrinary(a.type, b.type, randomType())
-        } else {
-            let dominantType = a.hasDominantType() ? a.type : b.type
-            c.type = rndTrinary(dominantType, dominantType, randomType())
         }
 
         /**
          * Iterate through whichever list of connections is bigger, a or b.
          * This way, we'll be able to sequence every connection.
          */
-        for (let i = 0; i < Math.max(a.connections.length, b.connections.length); i++) {
+        for (let i = 0; i &lt; Math.max(a.connections.length, b.connections.length); i++) {
             /**
              * Get the connections at this index in both neurons. This may be undefined in up to one neuron.
              * @type {Connection} conA
              * @type {Connection} conB
              */
-            const conA = a.connections[i];
-            const conB = b.connections[i];
+            let conA = a.connections[i];
+            let conB = b.connections[i];
 
             /**
              * If there is a connection element at this index for both a and b,
              *      there is a 49% chance (each) of pushing conA or conB.
              *      And a 2% chance of crossing.
              */
-            if (conA && conB) {
+            if (conA &amp;&amp; conB) {
 
                 /**
                  * 99.5% chance of pushing either connection A, B, or a mutant thereof.
                  */
-                if (Math.random() < 0.995) {
+                if (Math.random() &lt; 0.995) {
                     c.connections.push(rndTrinary(conA, conB, Neuron.crossConnections(conA, conB)));
                 } else {
                     /**
@@ -234,15 +228,6 @@ class Neuron {
     }
 
     /**
-     * Returns whether the 'type' of this neuron is dominant.
-     * Inputs and Output are dominant, normal is recessive.
-     * @return {boolean}
-     */
-    hasDominantType() {
-        return this.type == Types.INPUT || this.type == Types.OUTPUT;
-    }
-
-    /**
      *
      * @param {Connection} conA
      * @param {Connection} conB
@@ -250,11 +235,33 @@ class Neuron {
      */
     static crossConnections(conA, conB) {
         return ({
-            offset: rndTrinary(conA.offset, conB.offset, (Math.random() * 10 - Math.random() * 10).toFixed(0)),
+            offset: rndTrinary(conA.offset, conB.offset, Math.random() * 10 - Math.random() * 10),
             filter: rndTrinary(conA.filter, conB.filter, Math.random()),
             probability: rndTrinary(conA.probability, conB.probability, Math.random())
         });
     }
 }
 
-export default Neuron;
+export default Neuron;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Neuron.html">Neuron</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jul 19 2018 02:36:57 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
